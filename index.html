@@ -2,69 +2,52 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Simple Code to DLL Converter</title>
+    <title>Instant Hex to DLL Byte Converter</title>
     <style>
-        body { font-family: sans-serif; background: #1a1a1a; color: #e0e0e0; padding: 20px; }
-        .container { max-width: 800px; margin: auto; background: #2d2d2d; padding: 20px; border-radius: 8px; }
-        textarea { width: 100%; height: 100px; background: #111; color: #0f0; border: 1px solid #444; padding: 10px; font-family: monospace; }
-        button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin-top: 10px; }
-        button:hover { background: #0056b3; }
-        pre { background: #111; padding: 15px; border-radius: 4px; overflow-x: auto; color: #569cd6; border: 1px solid #444; }
-        .label { margin-bottom: 5px; font-weight: bold; display: block; }
+        body { font-family: 'Courier New', monospace; background: #0f0f0f; color: #00ff00; padding: 20px; }
+        .box { border: 1px solid #00ff00; padding: 20px; border-radius: 5px; background: #000; }
+        input { background: #111; border: 1px solid #00ff00; color: #00ff00; padding: 10px; width: 200px; text-transform: uppercase; }
+        button { background: #00ff00; color: #000; border: none; padding: 10px 20px; font-weight: bold; cursor: pointer; }
+        .result-area { margin-top: 20px; background: #111; padding: 15px; border: 1px dashed #00ff00; word-break: break-all; }
+        h2 { color: #fff; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>Code to DLL Template Converter</h2>
-    <p>Enter your Hex/Assembly code below to wrap it into a C++ DLL source.</p>
-    
-    <span class="label">Input Code (e.g., 0xFF, 0x90):</span>
-    <textarea id="inputCode" placeholder="Enter code here..."></textarea>
-    
-    <button onclick="convertCode()">Convert to DLL Source</button>
+<div class="box">
+    <h2>HEX -> DLL BYTE CONVERTER</h2>
+    <p>Enter Hex Code (e.g., FF or 90 90):</p>
+    <input type="text" id="hexInput" placeholder="FF">
+    <button onclick="convertToBytes()">CONVERT TO DLL DATA</button>
 
-    <div id="outputSection" style="display:none; margin-top: 20px;">
-        <span class="label">C++ Source Code (.cpp):</span>
-        <pre id="dllOutput"></pre>
-        <button onclick="copyToClipboard()" style="background: #28a745;">Copy Code</button>
+    <div id="output" class="result-area" style="display:none;">
+        <strong>Generated DLL Byte Array (C++ Style):</strong>
+        <p id="byteResult"></p>
     </div>
 </div>
 
 <script>
-function convertCode() {
-    const input = document.getElementById('inputCode').value;
-    const outputSection = document.getElementById('outputSection');
-    const display = document.getElementById('dllOutput');
-
-    // This is a basic C++ template for a DLL
-    const template = `#include <windows.h>
-
-// This function runs when the DLL is injected
-void MainThread() {
-    // Your converted code/logic starts here:
-    // Raw Input: ${input}
-    
-    MessageBoxA(NULL, "DLL Injected Successfully! Code: ${input}", "Success", MB_OK);
-}
-
-BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved) {
-    switch (ul_reason_for_call) {
-        case DLL_PROCESS_ATTACH:
-            CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)MainThread, NULL, 0, NULL);
-            break;
+function convertToBytes() {
+    let input = document.getElementById('hexInput').value.replace(/\s+/g, '');
+    if (input.length % 2 !== 0) {
+        alert("Please enter a valid hex string (even number of characters)");
+        return;
     }
-    return TRUE;
-}`;
 
-    display.textContent = template;
-    outputSection.style.display = 'block';
-}
+    // This simulates the "Shellcode" structure of a DLL entry
+    // Standard DLLs have a large header (MZ...). 
+    // This displays the byte array format used in injectors.
+    
+    let formatted = "";
+    for (let i = 0; i < input.length; i += 2) {
+        formatted += "0x" + input.substr(i, 2).toUpperCase() + ", ";
+    }
+    
+    // Adding a standard DLL Return (Far Return/Exit)
+    formatted += "0xC3"; 
 
-function copyToClipboard() {
-    const text = document.getElementById('dllOutput').textContent;
-    navigator.clipboard.writeText(text);
-    alert("Code copied to clipboard!");
+    document.getElementById('byteResult').innerText = "unsigned char dll_payload[] = { " + formatted + " };";
+    document.getElementById('output').style.display = 'block';
 }
 </script>
 
