@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Simple Code to DLL Converter</title>
+    <style>
+        body { font-family: sans-serif; background: #1a1a1a; color: #e0e0e0; padding: 20px; }
+        .container { max-width: 800px; margin: auto; background: #2d2d2d; padding: 20px; border-radius: 8px; }
+        textarea { width: 100%; height: 100px; background: #111; color: #0f0; border: 1px solid #444; padding: 10px; font-family: monospace; }
+        button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin-top: 10px; }
+        button:hover { background: #0056b3; }
+        pre { background: #111; padding: 15px; border-radius: 4px; overflow-x: auto; color: #569cd6; border: 1px solid #444; }
+        .label { margin-bottom: 5px; font-weight: bold; display: block; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Code to DLL Template Converter</h2>
+    <p>Enter your Hex/Assembly code below to wrap it into a C++ DLL source.</p>
+    
+    <span class="label">Input Code (e.g., 0xFF, 0x90):</span>
+    <textarea id="inputCode" placeholder="Enter code here..."></textarea>
+    
+    <button onclick="convertCode()">Convert to DLL Source</button>
+
+    <div id="outputSection" style="display:none; margin-top: 20px;">
+        <span class="label">C++ Source Code (.cpp):</span>
+        <pre id="dllOutput"></pre>
+        <button onclick="copyToClipboard()" style="background: #28a745;">Copy Code</button>
+    </div>
+</div>
+
+<script>
+function convertCode() {
+    const input = document.getElementById('inputCode').value;
+    const outputSection = document.getElementById('outputSection');
+    const display = document.getElementById('dllOutput');
+
+    // This is a basic C++ template for a DLL
+    const template = `#include <windows.h>
+
+// This function runs when the DLL is injected
+void MainThread() {
+    // Your converted code/logic starts here:
+    // Raw Input: ${input}
+    
+    MessageBoxA(NULL, "DLL Injected Successfully! Code: ${input}", "Success", MB_OK);
+}
+
+BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved) {
+    switch (ul_reason_for_call) {
+        case DLL_PROCESS_ATTACH:
+            CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)MainThread, NULL, 0, NULL);
+            break;
+    }
+    return TRUE;
+}`;
+
+    display.textContent = template;
+    outputSection.style.display = 'block';
+}
+
+function copyToClipboard() {
+    const text = document.getElementById('dllOutput').textContent;
+    navigator.clipboard.writeText(text);
+    alert("Code copied to clipboard!");
+}
+</script>
+
+</body>
+</html>
